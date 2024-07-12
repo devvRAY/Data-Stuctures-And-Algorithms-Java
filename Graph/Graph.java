@@ -1,99 +1,158 @@
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+    Graph data structure is implemented in the following way:
+        1. A class of type Vertex is created as HashMap<String, Integer>
+           This class is used to store the neighbours of each vertex and stores the name of the neighbouring vertex
+           as well as the cost associated with travelling to that vertex from the current vertex.
+
+        2. A HashMap<String,Vertex> is maintained which has the name of all the vertices as well as the information related
+           to neighbours stored in the Vertex class.
+*/
+
 public class Graph {
-    /*
-        1. Uses a hashmap of String and Vertex type to store data
-        2. Vertex class itself is a hashmap of string and Integer which stores the name of the adjacent
-           vertices as well as the distance/cost of a particular vertex from the parent hashmap vertex
-     */
-    public class Vertex {
-        HashMap<String, Integer> neighbours;
+
+    private class Vertex {
+
+        HashMap<String, Integer> nbrs;
+
         Vertex() {
-            this.neighbours = new HashMap<>();
+            nbrs = new HashMap<>();
         }
-    }
-    HashMap<String, Vertex> vertices;
-    Graph() {
-        this.vertices = new HashMap<>();
     }
 
-    //Method 1: Find the number of Vertices -> int numOfVertex()
-    public int numOfVertex() {
+    HashMap<String, Vertex> vertices;
+
+    Graph() {
+        vertices = new HashMap<>();
+    }
+
+    /*
+        1. int getNumOfVertex() -> Used to retrieve the number of vertices currently present in the Graph
+    */
+
+   private int getNumOfVertex() {
+
         return this.vertices.size();
-    }
-    //Method 2: Find if the map contains a vertex -> boolean containsVertex(String vName)
-    public boolean containsVertex(String vName) {
-        return this.vertices.containsKey(vName);
-    }
-    //Method 3: Add a vertex -> void addVertex(String vName)
-    public void addVertex(String vName) throws Exception {
-        if(containsVertex(vName)) {
-            throw new Exception("Vertex with given name already present");
+    
+   }
+
+    /*
+        2. boolean containsVertex(String vname) -> Used to check if a vertex with a given name is present in the graph
+    */
+
+   private boolean containsVertex(String vname) {
+
+        return this.vertices.containsKey(vname);
+    
+   }
+
+   /*
+        3. void addVertex(String vname) -> Used to add a vertex to the graph
+   */
+
+   private void addVertex(String vname) {
+
+        if(containsVertex(vname)) {
+            return;
         }
-        this.vertices.put(vName, new Vertex());
+        Vertex vtx = new Vertex();
+        this.vertices.put(vname,vtx);
+   }
+
+   /*
+        4. void removeVertex(String vname) -> Used to remove a vertex from the graph:
+            a. Fetch the Vertex from the vertices hashmap
+            b. Iterate the neighbours of the vertex
+            c. For every neigbouring vertex, remove the entry of the vertexToRemove from nbrs HashMap
+   */
+
+   private void removeVertex(String vname) {
+
+        Vertex vtxToRemove = this.vertices.get(vname);
+        Vertex vtxTemp;
+        
+        if(null == vtxToRemove) {
+            return;
+        }
+
+        for(String key : vtxToRemove.keySet()) {
+            vtxTemp = this.vertices.get(key);
+            vtxTemp.nbrs.remove(vname);
+        }
+
+        this.vertices.remove(vname);
+   }
+
+   /*
+        5. int numOfEdges() -> Used to return the number of edges in the graph:
+            a. Initialize num to 0 and Iterate the Vertices hashmap
+            b. For Every vertex, add the size of its nbrs hashmap to num
+            c. Return num/2 (Since every edge is diplicated in the nbrs hashmap of its )
+   */
+    private int numOfEdges() {
+        int num = 0;
+        Vertex vtxTemp;
+        for(String vname: this.vertices.keySet()) {
+            vtxTemp = this.vertices.get(vname);
+            num += vtxTemp.nbrs.size();
+        }
+        return num/2;
     }
-    //Method 4: Remove a vertex -> void removeVertex(Sting vName)
-    public void removeVertex(String vName) throws Exception{
-        if(!containsVertex(vName)) {
-            throw new Exception("Vertex with given name not present");
-        }
-        Vertex v = this.vertices.get(vName);
-        for(Map.Entry<String, Integer> entry : v.neighbours.entrySet()) {
-            this.vertices.get(entry.getKey()).neighbours.remove(vName);
-        }
-        this.vertices.remove(vName);
-    }
-    //Method 5: Find number of edges -> int numOfEdges()
-    public int numOfEdges() {
-        int edges = 0;
-        for(Map.Entry<String, Vertex> entry: this.vertices.entrySet()) {
-            edges = edges + entry.getValue().neighbours.size();
-        }
-        return edges/2;
-    }
-    //Method 6: Find if the map contains an edge -> boolean containsEdge(String vName1, String vName2)
-    public boolean containsEdge(String vName1, String vName2) throws Exception{
-        Vertex v1 = this.vertices.get(vName1);
-        Vertex v2 = this.vertices.get(vName2);
-        if(null == v1 || null == v2) {
-            throw new Exception("Vertices with given name not found");
-        }
-        if(!v1.neighbours.containsKey(vName2)) {
+
+    /*
+        6. boolean containsEdge(String vname1, String vname2) -> Used to check if an edge exists between
+           two vertices
+    */
+    private boolean containsEdge(String vname1, String vname2) {
+        Vertex vtx1 = this.vertices.get(vname1);
+        Vertex vtx2 = this.vertices.get(vname2);
+
+        if(null == vtx1 || null == vtx2) {
             return false;
         }
-        return true;
+        if(vtx1.nbrs.containsKey(vname2) && vtx2.nbrs.containsKey(vname1)) {
+            return true;
+        }
+        return false;
     }
-    //Method 7: Add an edge -> void addEdge(String vName1, String vName2, int cost)
-    public void addEdge(String vName1, String vName2, int cost) throws Exception {
-        Vertex v1 = this.vertices.get(vName1);
-        Vertex v2 = this.vertices.get(vName2);
-        if(null == v1 || null == v2) {
-            throw new Exception("Vertices with given name not found");
+
+    /*
+        7. void addEdge(String vname1, String vname2) -> Used to add an edge to a graph
+    */
+    private void addEdge(String vname1, String vname2, int cost) {
+        Vertex vtx1 = this.vertices.get(vname1);
+        Vertex vtx2 = this.vertices.get(vname2);
+
+        if(null == vtx1 || null == vtx2) {
+            return;
         }
-        if(v1.neighbours.containsKey(vName2)) {
-            throw new Exception("Edge already present");
+        if(vtx1.nbrs.containsKey(vname2) || vtx2.nbrs.containsKey(vname1)) {
+            return;
         }
-        v1.neighbours.put(vName2, cost);
-        v2.neighbours.put(vName1, cost);
+        vtx1.nbrs.put(vname2, cost);
+        vtx2.nbrs.put(vname1, cost);
     }
-    //Method 8: Remove an edge -> void removeEdge(String vName1, String vName2)
-    public void removeEdge(String vName1, String vName2) throws Exception {
-        Vertex v1 = this.vertices.get(vName1);
-        Vertex v2 = this.vertices.get(vName2);
-        if(null == v1 || null == v2) {
-            throw new Exception("Vertices with given name not found");
+
+    /*
+        8. void removeEdge(String vname1, String vname2) -> Used to remove an edge from graph
+    */
+    private void addEdge(String vname1, String vname2, int cost) {
+        Vertex vtx1 = this.vertices.get(vname1);
+        Vertex vtx2 = this.vertices.get(vname2);
+
+        if(null == vtx1 || null == vtx2) {
+            return;
         }
-        if(!v1.neighbours.containsKey(vName2)) {
-            throw new Exception("Edge does not exist");
+        if(!vtx1.nbrs.containsKey(vname2) || !vtx2.nbrs.containsKey(vname1)) {
+            return;
         }
-        v1.neighbours.remove(vName2);
-        v2.neighbours.remove(vName1);
+        vtx1.nbrs.remove(vname2);
+        vtx2.nbrs.remove(vname1);
     }
-    //Method 9: Display -> void display()
-    public void display() {
-        for(Map.Entry<String, Vertex> entry: this.vertices.entrySet()) {
-            System.out.println("Vertex: " + entry.getKey() + " Neighbours: " + entry.getValue().neighbours);
-        }
-    }
+
+    /*
+        9. void display() -> Used to print a graph
+    */
 }
