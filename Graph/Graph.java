@@ -138,7 +138,7 @@ public class Graph {
     /*
         8. void removeEdge(String vname1, String vname2) -> Used to remove an edge from graph
     */
-    private void addEdge(String vname1, String vname2, int cost) {
+    private void removeEdge(String vname1, String vname2, int cost) {
         Vertex vtx1 = this.vertices.get(vname1);
         Vertex vtx2 = this.vertices.get(vname2);
 

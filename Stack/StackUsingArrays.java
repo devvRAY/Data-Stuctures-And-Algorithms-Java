@@ -35,7 +35,7 @@ public class StackUsingArrays {
         return this.top == -1;
     }
 
-    //Method 4: isFull() -> return true if stack is empty else false
+    //Method 4: isFull() -> return true if stack is full else false
     private boolean isFull() {
         return this.top++ == this.data.length;
     }
